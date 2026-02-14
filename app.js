@@ -5,6 +5,7 @@ app.use(express.json());
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('./Models/User');
+const Product = require('./Models/Products');
 
 const PORT = process.env.PORT || 3000
 
@@ -57,10 +58,11 @@ app.post('/register', async (req, res) => {
 
 app.post('/login', async(req,res)=> {
     try{
+        const {email, password} = req.body;
         if(!email || !password){
             return res.status(400).json({msg: "missing required fields"});
         }
-        const user = User.findOne({email});
+        const user = await User.findOne({email});
         if(!user){
             return res.status(400).json({msg: "user not found"});
         }
@@ -73,8 +75,41 @@ app.post('/login', async(req,res)=> {
             msg: "login successful", 
             authCode
         });
-        
+
     } catch(error){
+        console.log(error);
+    }
+})
+
+app.post('/products', async (req,res) => {
+    try{
+        const {name, description, price} = req.body;
+        if(!name || !price){
+            return res.status(400).json({msg: "missing required fields"});
+        }
+        const product = await Product.create({
+            name,
+            description,
+            price
+        });
+        res.status(201).json({
+            msg: "product created successfully",
+            data: product
+        });
+    } catch(error){
+        console.log(error);
+    }
+})
+
+app.get('/products', async (req,res) => {
+    try{
+        const products = await Product.find();
+        res.status(200).json({
+            msg: "products retrieved successfully", 
+            data: products
+        });
+    }
+    catch(error){
         console.log(error);
     }
 })
