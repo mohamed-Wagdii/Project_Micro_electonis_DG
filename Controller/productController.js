@@ -49,9 +49,32 @@ const deleteProduct = async (req, res) => {
          console.log(error);
      }
 }
+
+const serchProduct = async (req, res) => {
+    try{
+        const {name} = req.params;
+        const product = await Product.find({
+            name:{
+                $regex: name,
+                $options: 'i'
+            }
+        });
+        if(!product){
+            return res.status(404).json({msg: "product not found"});
+        }
+        res.status(200).json({
+            msg: "product searched successfully",
+            data: product
+        });
+    }catch(error){
+        console.log(error);
+    }
+}
+
 module.exports = {
     createProduct,
     getAllProducts,
-    deleteProduct
+    deleteProduct,
+    serchProduct
 }
 
