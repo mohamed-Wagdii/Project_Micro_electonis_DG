@@ -1,25 +1,56 @@
 require('dotenv').config();
-const Product = require('../Models/Products');  
+const Product = require('../Models/Products');
 
-const createProduct = async (req,res) => {
-    try{
-        const {name, description, price} = req.body;
-        if(!name || !price){
-            return res.status(400).json({msg: "missing required fields"});
+
+const createProduct = async (req, res) => {
+    try {
+        if (!req.user || req.user.role !== "admin") {
+            return res.status(403).json({
+                msg: "Access denied. Admins only"
+            });
         }
+
+        const { name, description, price } = req.body;
+
+        if (!name || !price) {
+            return res.status(400).json({ msg: "missing required fields" });
+        }
+
         const product = await Product.create({
             name,
             description,
             price
         });
+
         res.status(201).json({
             msg: "product created successfully",
             data: product
         });
-    } catch(error){
+
+    } catch (error) {
         console.log(error);
+        res.status(500).json({ msg: "server error" });
     }
-}
+};
+// const createProduct = async (req,res) => {
+//     try{
+//         const {name, description, price} = req.body;
+//         if(!name || !price){
+//             return res.status(400).json({msg: "missing required fields"});
+//         }
+//         const product = await Product.create({
+//             name,
+//             description,
+//             price
+//         });
+//         res.status(201).json({
+//             msg: "product created successfully",
+//             data: product
+//         });
+//     } catch(error){
+//         console.log(error);
+//     }
+// }
 
 
 const getAllProducts = async (req,res) => {
